@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Калькулятор Синергия</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: #f8fafc;
+      padding: 20px;
+    }
+
+    .calculator {
+      background: #1e293b;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      width: 100%;
+      max-width: 420px;
+      border: 1px solid #334155;
+    }
+
+    h1 {
+      font-size: 22px;
+      text-align: center;
+      margin-bottom: 24px;
+      color: #38bdf8;
+    }
+
+    .inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: #94a3b8;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid #475569;
+      background-color: #0f172a;
+      color: #fff;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="text"]:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+    }
+
+    input.invalid {
+      border-color: #f43f5e !important;
+      box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.2) !important;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    button {
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: #3b82f6;
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:hover:not(:disabled) {
+      background: #2563eb;
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      background: #334155;
+      color: #64748b;
+      cursor: not-allowed;
+      transform: none;
+      opacity: 0.6;
+    }
+
+    .result-box {
+      background: #0f172a;
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 500;
+      border: 1px dashed #475569;
+    }
+
+    .result-box.normal { color: #94a3b8; }
+    .result-box.success { color: #4ade80; border-color: #4ade80; }
+    .result-box.error { color: #f43f5e; border-color: #f43f5e; }
+  </style>
+</head>
+<body>
+
+  <div class="calculator">
+    <h1>Калькулятор Синергия</h1>
+
+    <div class="inputs">
+      <div class="input-group">
+        <label for="num1">Введите первое число:</label>
+        <input type="text" id="num1" placeholder="Введите число..." autocomplete="off">
+      </div>
+      <div class="input-group">
+        <label for="num2">Введите второе число:</label>
+        <input type="text" id="num2" placeholder="Введите число..." autocomplete="off">
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button id="btn-add" disabled>+</button>
+      <button id="btn-sub" disabled>-</button>
+      <button id="btn-mul" disabled>*</button>
+      <button id="btn-div" disabled>/</button>
+    </div>
+
+    <div id="result" class="result-box normal">Введите числа для расчета</div>
+  </div>
+
+  <script>
+    const input1 = document.getElementById('num1');
+    const input2 = document.getElementById('num2');
+    const resultBox = document.getElementById('result');
+    const buttons = [
+      document.getElementById('btn-add'),
+      document.getElementById('btn-sub'),
+      document.getElementById('btn-mul'),
+      document.getElementById('btn-div')
+    ];
+
+    function sum(a, b) { return a + b; }
+    function subtract(a, b) { return a - b; }
+    function multiply(a, b) { return a * b; }
+    function divide(a, b) {
+      if (b === 0) return 'Ошибка: деление на ноль невозможно!';
+      return a / b;
+    }
+
+    function isValidNumber(val) {
+      val = val.trim().replace(',', '.');
+      return val !== '' && !isNaN(val) && !isNaN(parseFloat(val));
+    }
+
+    function validateInputs() {
+      const val1 = input1.value;
+      const val2 = input2.value;
+
+      input1.classList.remove('invalid');
+      input2.classList.remove('invalid');
+
+      if (val1 === '' && val2 === '') {
+        resultBox.textContent = 'Введите числа для расчета';
+        resultBox.className = 'result-box normal';
+        toggleButtons(false);
+        return;
+      }
+
+      const isVal1Valid = isValidNumber(val1);
+      const isVal2Valid = isValidNumber(val2);
+
+      if (val1 !== '' && !isVal1Valid) {
+        input1.classList.add('invalid');
+        showError('Ошибка: в первом поле введены не цифры!');
+        toggleButtons(false);
+        return;
+      }
+
+      if (val2 !== '' && !isVal2Valid) {
+        input2.classList.add('invalid');
+        showError('Ошибка: во втором поле введены не цифры!');
+        toggleButtons(false);
+        return;
+      }
+
+      if (val1 === '' || val2 === '') {
+        resultBox.textContent = 'Заполните оба поля';
+        resultBox.className = 'result-box normal';
+        toggleButtons(false);
+        return;
+      }
+
+      resultBox.textContent = 'Укажите нужную математическую операцию';
+      resultBox.className = 'result-box normal';
+      toggleButtons(true);
+    }
+
+    function toggleButtons(enabled) {
+      buttons.forEach(btn => btn.disabled = !enabled);
+    }
+
+    function showError(message) {
+      resultBox.textContent = message;
+      resultBox.className = 'result-box error';
+    }
+
+    function calculate(operation) {
+      const a = parseFloat(input1.value.trim().replace(',', '.'));
+      const b = parseFloat(input2.value.trim().replace(',', '.'));
+
+      const res = operation(a, b);
+
+      if (typeof res === 'string') {
+        showError(res);
+      } else {
+        const formatted = Number.isInteger(res) ? res : Number(res.toFixed(6));
+        resultBox.textContent = `Результат: ${formatted}`;
+        resultBox.className = 'result-box success';
+      }
+    }
+
+    input1.addEventListener('input', validateInputs);
+    input2.addEventListener('input', validateInputs);
+
+    document.getElementById('btn-add').addEventListener('click', () => calculate(sum));
+    document.getElementById('btn-sub').addEventListener('click', () => calculate(subtract));
+    document.getElementById('btn-mul').addEventListener('click', () => calculate(multiply));
+    document.getElementById('btn-div').addEventListener('click', () => calculate(divide));
+  </script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Счетчик</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      /* фон - линейный градиент */
+      background: linear-gradient(135deg, #243B55 0%, #141E30 100%);
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      color: #ffffff;
+    }
+
+    /* окошко отображения результата */
+    .display {
+      width: 140px;
+      height: 90px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 48px;
+      font-weight: 300;
+      border-radius: 15px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease; 
+      border: 1px solid rgba(255,255,255,0.1); 
+    }
+
+   
+    
+    /* смена цветов для различных значений */
+    .bg-zero {
+      background-color: #ef5350; 
+      color: #ffffff;
+      box-shadow: 0 10px 25px rgba(239, 83, 80, 0.4); /* Цветная тень */
+    }
+
+    .bg-positive {
+      background-color: #ffca28;
+      color: #333333; 
+      box-shadow: 0 10px 25px rgba(255, 202, 40, 0.4);
+    }
+
+    .bg-negative {
+      background-color: #26a69a;
+      color: #ffffff;
+      box-shadow: 0 10px 25px rgba(38, 166, 154, 0.4);
+    }
+
+    /* кнопки */
+    .controls {
+      display: flex;
+      gap: 25px;
+    }
+
+    .btn {
+      width: 70px;
+      height: 55px;
+      font-size: 30px;
+      font-weight: 400;
+      color: #ffffff;
+      border: none;
+      /* радиальное скругление 5px */
+      border-radius: 5px; 
+      /* фон кнопок - градиент */
+      background: linear-gradient(180deg, #4da1ff 0%, #4d61ff 100%);
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(77, 97, 255, 0.3);
+      transition: all 0.2s ease;
+      
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding-bottom: 4px; 
+    }
+
+    .btn:hover:not(:disabled) {
+      filter: brightness(1.1);
+      transform: translateY(-2px); 
+      box-shadow: 0 8px 20px rgba(77, 97, 255, 0.4);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: translateY(1px); 
+      box-shadow: 0 3px 10px rgba(77, 97, 255, 0.4);
+    }
+
+    .btn:disabled {
+      background: #555555; 
+      color: #999999;
+      cursor: not-allowed;
+      opacity: 0.5;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .message-box {
+      min-height: 30px;
+      font-size: 16px;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.7); 
+      text-align: center;
+      font-style: italic;
+      letter-spacing: 0.5px;
+      max-width: 300px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- окошко отображения результата -->
+  <div id="counter-display" class="display bg-zero">0</div>
+
+  <!-- кнопки -->
+  <div class="controls">
+    <button id="btn-minus" class="btn" aria-label="Уменьшить на 1">−</button>
+    <button id="btn-plus" class="btn" aria-label="Увеличить на 1">+</button>
+  </div>
+
+  <!-- экстремальные значения -->
+  <div id="message" class="message-box"></div>
+
+  <script>
+
+    let count = 0;
+
+    const display = document.getElementById('counter-display');
+    const btnMinus = document.getElementById('btn-minus');
+    const btnPlus = document.getElementById('btn-plus');
+    const messageBox = document.getElementById('message');
+
+    function updateUI() {
+      // отображение значения
+      display.textContent = count;
+
+      // смена цвета
+      display.classList.remove('bg-zero', 'bg-positive', 'bg-negative');
+      if (count === 0) {
+        display.classList.add('bg-zero');
+      } else if (count > 0) {
+        display.classList.add('bg-positive');
+      } else {
+        display.classList.add('bg-negative');
+      }
+
+      // блокировка кнопок
+      btnPlus.disabled = (count >= 10);
+      btnMinus.disabled = (count <= -10);
+
+      // экстремальные значения
+      if (count === 10 || count === -10) {
+        messageBox.textContent = 'вы достигли экстремального значения';
+      } else {
+        messageBox.textContent = '';
+      }
+    }
+
+    btnPlus.addEventListener('click', () => {
+      if (count < 10) {
+        count++;
+        updateUI();
+      }
+    });
+
+    btnMinus.addEventListener('click', () => {
+      if (count > -10) {
+        count--;
+        updateUI();
+      }
+    });
+
+    updateUI();
+  </script>
+</body>
+</html>
