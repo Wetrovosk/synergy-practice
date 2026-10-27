@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добро пожаловать</title>
+    <link rel="stylesheet" href="{% static 'greeting_app/style.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <main class="container">
+        <div class="card">
+            {% if greeting_name %}
+                <div class="greeting-banner">
+                    <span class="greeting-icon">👋</span>
+                    <h2>Рады видеть вас, <span class="highlight">{{ greeting_name }}</span>!</h2>
+                    <p>Ваше имя успешно сохранено в базе данных.</p>
+                </div>
+            {% else %}
+                <header class="header">
+                    <h1>Добро пожаловать!</h1>
+                    <p class="subtitle">Пожалуйста, представьтесь, чтобы мы могли вас поприветствовать.</p>
+                </header>
+            {% endif %}
+
+            <form method="POST" novalidate class="form">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="{{ form.name.id_for_label }}">Ваше имя</label>
+                    {{ form.name }}
+
+                    {% if form.name.errors %}
+                        <div class="error-message">
+                            {% for error in form.name.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn-submit">Submit</button>
+            </form>
+
+            {% if recent_visitors %}
+                <div class="history-section">
+                    <h3>Последние гости:</h3>
+                    <ul class="badge-list">
+                        {% for guest in recent_visitors %}
+                            <li class="badge">{{ guest.name }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+</body>
+</html>
